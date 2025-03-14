@@ -23,7 +23,7 @@ namespace Svc
             });
 
             builder.Services.Configure<Core.Models.Configuration.CollectorSettings>(builder.Configuration.GetSection(Core.Models.Configuration.CollectorSettings.ConfigKey));
-            builder.Services.Configure<Core.Models.Configuration.FhirSettings>(builder.Configuration.GetSection(Core.Models.Configuration.FhirSettings.ConfigKey));
+            //builder.Services.Configure<Core.Models.Configuration.FhirSettings>(builder.Configuration.GetSection(Core.Models.Configuration.FhirSettings.ConfigKey));
             builder.Services.Configure<Core.Models.Configuration.OpenAISettings>(builder.Configuration.GetSection(Core.Models.Configuration.OpenAISettings.ConfigKey));
 
             builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
