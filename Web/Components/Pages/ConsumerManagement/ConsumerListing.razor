@@ -1,0 +1,38 @@
+﻿@page "/access-management/user-list"
+@rendermode InteractiveServer
+@inherits PageBase;
+@using Core;
+@inject IAccess _access;
+@inject NavigationManager NavManager;
+
+<PageTitle>Users</PageTitle>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn Size="12" SizeMD="12">
+        <RadzenCard>
+            <RadzenDataGrid @ref="userGrid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true"
+                            PageSize="20" AllowPaging="true"
+                            FilterMode="FilterMode.Advanced"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.Or" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                            Data="@userList"
+                            TItem="ConsumerModel"
+                            SelectionMode="DataGridSelectionMode.Single"
+                            RowSelect="@HandleRowClickEvent">
+                <HeaderTemplate>
+                    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New User" Click="@AddUser_Clicked" />
+                </HeaderTemplate>
+                <Columns>
+                    <RadzenDataGridColumn Property="@nameof(ConsumerModel.ImageSlug)" Title="Employee" Sortable="false" Filterable="false">
+                        <Template Context="data">
+                            <RadzenImage Path="@data.ImageSlug" Style="width: 40px; height: 40px;" class="rz-border-radius-2 rz-me-2" AlternateText="@(data.FirstName + " " + data.LastName)" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(ConsumerModel.FirstName)" Title="Name" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(ConsumerModel.LastName)" Title="Register #" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(ConsumerModel.ModifiedDate)" Title="Last Updated" Sortable="true" Filterable="true" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>

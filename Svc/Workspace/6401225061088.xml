@@ -1,0 +1,72 @@
+﻿<Consumer MatchResult="S">
+  <Details Initials="DA" FirstName="DAVID" SecondName="ARTHUR" ThirdName="A" Surname="LING" IDNo="6401225061088" PassportNo="" BirthDate="1964-01-22T00:00:00" Gender="Male" TitleDesc="Mister" MaritalStatusDesc="" SpouseFirstName="" SpouseSurname="" ResidentialAddress="2 LISBON AVN, ROBERTSHAM, JOHANNESBURG, 2091" PostalAddress="1 BOUNDARY LANE, OAKDENE, 2190" HomeTelephoneNo="0116807403" WorkTelephoneNo="0114351902" CellularNo="0740301143" EmailAddress="" EmployerDetail="DAVE PROPS CC" ReferenceNo="CG45854-4229250" ExternalReference=""/>
+  <FraudIndicatorsSummary HomeAffairsVerification="No" HomeAffairsDeceasedDate="1900-01-01T00:00:00" SAFPSListing="No" XDSAuthenticationListing="No"/>
+  <ConsumerAccountSummary TotalMontlyInstallmentAmt="84626.0000" TotalOutstandingDebtAmt="5071832.0000" TotalNoOfCreditAccounts="21" NoOfBankAccounts="0" NoOfApparelAccounts="4" NoOfFurnitureAccounts="0" NoOfCellularAccounts="1" NoOfAdverseAccounts="0" TotalAdverseAmt="0.0000" NoOfAccountInArrears="1" TotalArrearsAmt="64066.0000" MonthsInArrears="6" NoOfJudgements="0" TotalJudgementAmt="0.0000" LatestJudgementDate="1900-01-01T00:00:00" AdminOrderYN="No" DebtReviewStatusDesc=""/>
+  <PropertyInfoSummary TotalPropertyCount="1" TotalPropertyValueAmt="1335130.0000" CurrentPropertyInterests="0" PreviousPropertyInterests="0"/>
+  <DirectorSummary TotalNoOfDirectorships="0"/>
+  <MonthlyAccountPayment AccountOpenedDate="2008-11-13T00:00:00" SubscriberName="Nedbank Mortage" CreditLimitAmt="999999.0000" CurrentBalanceAmt="999999.0000" MonthlyInstalmentAmt="16699.0000" ArrearsAmt="0.0000" ArrearsTypeInd="Cr" AccountType="Installment" AccountNo="0008000132382201"/>
+  <MonthlyAccountPayment AccountOpenedDate="2008-09-03T00:00:00" SubscriberName="Standard Bank Homeloans" CreditLimitAmt="385500.0000" CurrentBalanceAmt="392206.0000" MonthlyInstalmentAmt="5089.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Home Loans" AccountNo="0000000363285857"/>
+  <MonthlyAccountPayment AccountOpenedDate="2008-08-11T00:00:00" SubscriberName="Standard Bank Homeloans" CreditLimitAmt="650000.0000" CurrentBalanceAmt="667467.0000" MonthlyInstalmentAmt="7846.0000" ArrearsAmt="8020.0000" ArrearsTypeInd="" AccountType="Home Loans" AccountNo="0000000363493816"/>
+  <MonthlyAccountPayment AccountOpenedDate="2008-07-01T00:00:00" SubscriberName="FNB Homeloans" CreditLimitAmt="597000.0000" CurrentBalanceAmt="0.0000" MonthlyInstalmentAmt="0.0000" ArrearsAmt="0.0000" ArrearsTypeInd="Cr" AccountType="Home Loans" AccountNo="3000012283252MLS"/>
+  <MonthlyAccountPayment AccountOpenedDate="2008-05-01T00:00:00" SubscriberName="Absa Home Loans" CreditLimitAmt="780000.0000" CurrentBalanceAmt="842454.0000" MonthlyInstalmentAmt="9867.0000" ArrearsAmt="64066.0000" ArrearsTypeInd="" AccountType="Home Loans" AccountNo="0000008070767517"/>
+  <MonthlyAccountPayment AccountOpenedDate="2007-06-13T00:00:00" SubscriberName="Absa Home Loans" CreditLimitAmt="455867.0000" CurrentBalanceAmt="447631.0000" MonthlyInstalmentAmt="7256.0000" ArrearsAmt="14039.0000" ArrearsTypeInd="" AccountType="Home Loans" AccountNo="0000008065432860"/>
+  <MonthlyAccountPayment AccountOpenedDate="2007-05-07T00:00:00" SubscriberName="Nedbank Mortage" CreditLimitAmt="90000.0000" CurrentBalanceAmt="0.0000" MonthlyInstalmentAmt="1118.0000" ArrearsAmt="95614.0000" ArrearsTypeInd="Cr" AccountType="Installment" AccountNo="0008144681350401"/>
+  <MonthlyAccountPayment AccountOpenedDate="2006-07-31T00:00:00" SubscriberName="Nedbank Mortage" CreditLimitAmt="520000.0000" CurrentBalanceAmt="517973.0000" MonthlyInstalmentAmt="6598.0000" ArrearsAmt="6487.0000" ArrearsTypeInd="" AccountType="Installment" AccountNo="0008473844800101"/>
+  <MonthlyAccountPayment AccountOpenedDate="2006-07-31T00:00:00" SubscriberName="Nedbank Mortage" CreditLimitAmt="520000.0000" CurrentBalanceAmt="514245.0000" MonthlyInstalmentAmt="6417.0000" ArrearsAmt="128.0000" ArrearsTypeInd="Cr" AccountType="Installment" AccountNo="0008473844800101"/>
+  <MonthlyAccountPayment AccountOpenedDate="2006-07-31T00:00:00" SubscriberName="Nedbank Mortage" CreditLimitAmt="520000.0000" CurrentBalanceAmt="517848.0000" MonthlyInstalmentAmt="6560.0000" ArrearsAmt="637.0000" ArrearsTypeInd="" AccountType="Installment" AccountNo="0008530451100101"/>
+  <MonthlyAccountPayment AccountOpenedDate="2005-12-23T00:00:00" SubscriberName="FNB Homeloans" CreditLimitAmt="410000.0000" CurrentBalanceAmt="0.0000" MonthlyInstalmentAmt="0.0000" ArrearsAmt="0.0000" ArrearsTypeInd="Cr" AccountType="Home Loans" AccountNo="3000010348683MLS"/>
+  <MonthlyAccountPayment AccountOpenedDate="2005-10-25T00:00:00" SubscriberName="Woolworths Card" CreditLimitAmt="7500.0000" CurrentBalanceAmt="378.0000" MonthlyInstalmentAmt="38.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Revolving" AccountNo="6007850151318779"/>
+  <MonthlyAccountPayment AccountOpenedDate="2005-09-07T00:00:00" SubscriberName="FNB Discovery" CreditLimitAmt="13500.0000" CurrentBalanceAmt="10759.0000" MonthlyInstalmentAmt="796.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Credit Card" AccountNo="4901380284748000"/>
+  <MonthlyAccountPayment AccountOpenedDate="2004-12-20T00:00:00" SubscriberName="@Home" CreditLimitAmt="16900.0000" CurrentBalanceAmt="1472.0000" MonthlyInstalmentAmt="615.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Revolving" AccountNo="0000000033896364"/>
+  <MonthlyAccountPayment AccountOpenedDate="2004-12-20T00:00:00" SubscriberName="@Home" CreditLimitAmt="16900.0000" CurrentBalanceAmt="1213.0000" MonthlyInstalmentAmt="120.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Revolving" AccountNo="0000000033896364"/>
+  <MonthlyAccountPayment AccountOpenedDate="2003-07-03T00:00:00" SubscriberName="Telkom" CreditLimitAmt="279.0000" CurrentBalanceAmt="279.0000" MonthlyInstalmentAmt="279.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Open" AccountNo="422942670001"/>
+  <MonthlyAccountPayment AccountOpenedDate="2003-03-06T00:00:00" SubscriberName="FNB Card" CreditLimitAmt="34998.0000" CurrentBalanceAmt="35113.0000" MonthlyInstalmentAmt="3148.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Credit Card" AccountNo="4901151860137000"/>
+  <MonthlyAccountPayment AccountOpenedDate="2002-05-01T00:00:00" SubscriberName="Outsurance" CreditLimitAmt="0.0000" CurrentBalanceAmt="2301.0000" MonthlyInstalmentAmt="2301.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Short Term Insurance" AccountNo="OT2998958OUM"/>
+  <MonthlyAccountPayment AccountOpenedDate="1993-10-28T00:00:00" SubscriberName="Standard Bank Credit Card" CreditLimitAmt="63600.0000" CurrentBalanceAmt="63700.0000" MonthlyInstalmentAmt="3874.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Credit Card" AccountNo="0000000008710499"/>
+  <MonthlyAccountPayment AccountOpenedDate="1993-10-01T00:00:00" SubscriberName="Standard Bank Credit Card" CreditLimitAmt="63600.0000" CurrentBalanceAmt="54828.0000" MonthlyInstalmentAmt="5482.0000" ArrearsAmt="0.0000" ArrearsTypeInd="" AccountType="Credit Card" AccountNo="0000000001443342"/>
+  <MonthlyAccountPayment AccountOpenedDate="1990-11-27T00:00:00" SubscriberName="Edgars" CreditLimitAmt="8000.0000" CurrentBalanceAmt="1966.0000" MonthlyInstalmentAmt="336.0000" ArrearsAmt="0.0000" ArrearsTypeInd="Cr" AccountType="Revolving" AccountNo="7000100100005259569"/>
+  <MonthlyAccountPayment AccountOpenedDate="1989-09-01T00:00:00" SubscriberName="Truworths" CreditLimitAmt="187.0000" CurrentBalanceAmt="0.0000" MonthlyInstalmentAmt="187.0000" ArrearsAmt="0.0000" ArrearsTypeInd="Cr" AccountType="Revolving" AccountNo="10100112942427"/>
+  <MonthlyAccountPaymentDefinition DefinitionCode="C" DefinitionDesc="Closed/Completed"/>
+  <MonthlyAccountPaymentDefinition DefinitionCode="0" DefinitionDesc="Not in arrears"/>
+  <MonthlyAccountPaymentDefinition DefinitionCode="1-9" DefinitionDesc="No of months in arrears"/>
+  <MonthlyAccountPaymentDefinition DefinitionCode="*" DefinitionDesc="Repeat of previous month&apos;s data"/>
+  <MonthlyAccountPaymentDefinition DefinitionCode="?" DefinitionDesc="No data found"/>
+  <FraudIndicatorsDetail XDSAuthenticationListing="No" XDSAuthenticationDate="1900-01-01T00:00:00" XDSAuthenticationResult="" XDSAuthenticationReason=""/>
+  <PropertyInfoDetail TitleDeedNo="T50661/2008" ErfNo="" DeedsOffice="" PhysicalAddress="1 BARBARA GLENVISTA JOHANNESBURG SOUTH" PropertyTypeDesc="Freehold / Ervin" ErfSize="1257.0SQM" PurchaseDate="2008-08-05T00:00:00" PurchasePriceAmt="1400000.0000" BuyerSharePerc="0.0000" BondHolderName="NEDBANK LTD" BondAccountNo="B59777/2008" BondAmt="1335130.0000"/>
+  <NameHistory Initials="DA" FirstName="DAVID" SecondName="ARTHUR" Surname="LING" IDNo="6401225061088" PassportNo="" BirthDate="1964-01-22T00:00:00" TitleDesc="Mister" LastUpdatedDate="2007-01-27T10:20:31.873"/>
+  <AddressHistory AddressType="Postal" Address1="" Address2="" Address3="" Address4="" PostalCode="" LastUpdatedDate="2009-01-14T05:30:59.560"/>
+  <AddressHistory AddressType="Postal" Address1="BOX 82115" Address2="SOUTHDALE" Address3="" Address4="RSA" PostalCode="2135" LastUpdatedDate="2007-01-26T13:35:59.700"/>
+  <AddressHistory AddressType="Postal" Address1="P O BOX 82115" Address2="" Address3="SOUTHDALE" Address4="" PostalCode="2135" LastUpdatedDate="2006-04-04T12:48:48.653"/>
+  <AddressHistory AddressType="Postal" Address1="PO BOX 82115" Address2="SOUTHDALE" Address3="" Address4="" PostalCode="2135" LastUpdatedDate="2007-04-09T00:58:09.750"/>
+  <AddressHistory AddressType="Postal" Address1="PO BOX 82115" Address2="SOUTHDALE" Address3="JHB" Address4="" PostalCode="2135" LastUpdatedDate="2006-04-27T17:53:37.357"/>
+  <AddressHistory AddressType="Postal" Address1="PO BOX 82115" Address2="SOUTHDALE" Address3="JOHANNESBURG" Address4="GAUTENG" PostalCode="002135" LastUpdatedDate="2007-07-19T05:24:02.513"/>
+  <AddressHistory AddressType="Residential" Address1="" Address2="" Address3="" Address4="" PostalCode="" LastUpdatedDate="2008-12-30T14:51:16.467"/>
+  <AddressHistory AddressType="Residential" Address1="2 LISBON AVE" Address2="ROBERTSHAM" Address3="" Address4="JOHANNESBURG" PostalCode="2091" LastUpdatedDate="2006-11-18T20:58:12.017"/>
+  <AddressHistory AddressType="Residential" Address1="2 LISBON AVENUE" Address2="" Address3="ROBERTSHAM" Address4="" PostalCode="2091" LastUpdatedDate="2006-04-04T12:51:12.840"/>
+  <AddressHistory AddressType="Residential" Address1="2 LISBON AVENUE" Address2="ROBERTSHAM" Address3="JOHANNESBURG" Address4="GAUTENG" PostalCode="002091" LastUpdatedDate="2007-07-19T06:01:26.797"/>
+  <AddressHistory AddressType="Residential" Address1="75 ALTHAM RD" Address2="ROBERTSHAM" Address3="" Address4="" PostalCode="2191" LastUpdatedDate="2007-01-26T15:49:47.170"/>
+  <TelephoneHistory TelephoneType="Cellular" TelephoneNo="0740301143" EmailAddress="" LastUpdatedDate="2006-11-23T02:22:13.397"/>
+  <TelephoneHistory TelephoneType="Work" TelephoneNo="0116809829" EmailAddress="" LastUpdatedDate="2006-06-20T17:04:21.950"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0116802127" EmailAddress="" LastUpdatedDate="2006-08-17T03:28:53.787"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0114351902" EmailAddress="" LastUpdatedDate="2009-01-04T19:59:27.653"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0116802128" EmailAddress="" LastUpdatedDate="2006-08-17T03:28:53.787"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0116809829" EmailAddress="" LastUpdatedDate="2007-03-24T18:00:16.763"/>
+  <TelephoneHistory TelephoneType="Work" TelephoneNo="0114351902" EmailAddress="" LastUpdatedDate="2008-06-05T12:16:30.623"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0116804304" EmailAddress="" LastUpdatedDate="2007-03-28T20:04:13.967"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0114321212" EmailAddress="" LastUpdatedDate="2009-01-09T14:46:59.170"/>
+  <TelephoneHistory TelephoneType="Cellular" TelephoneNo="0833774053" EmailAddress="" LastUpdatedDate="2006-06-29T01:53:07.300"/>
+  <TelephoneHistory TelephoneType="Home" TelephoneNo="0116807403" EmailAddress="" LastUpdatedDate="2008-07-02T15:57:32.797"/>
+  <EmploymentHistory EmployerDetail="CONTRACTOR" Designation="" LastUpdatedDate="2007-03-29T00:26:41.763"/>
+  <EmploymentHistory EmployerDetail="DAVE LING PROPERTIES" Designation="" LastUpdatedDate="2008-07-17T01:47:02.310"/>
+  <EmploymentHistory EmployerDetail="DAVE PROPS" Designation="" LastUpdatedDate="2007-05-14T21:28:26.763"/>
+  <EmploymentHistory EmployerDetail="DAVE PROPS   REALTY" Designation="" LastUpdatedDate="2007-03-01T14:27:49.233"/>
+  <EmploymentHistory EmployerDetail="DAVE PROPS &amp; REALTY" Designation="" LastUpdatedDate="2008-07-02T16:22:38.903"/>
+  <EmploymentHistory EmployerDetail="DAVE PROPS CC" Designation="" LastUpdatedDate="2007-07-17T00:32:48.607"/>
+  <EmploymentHistory EmployerDetail="DAVID LING TRADING A" Designation="" LastUpdatedDate="2008-06-05T12:23:30.733"/>
+  <EmploymentHistory EmployerDetail="DEVELOPROPS CC" Designation="" LastUpdatedDate="2008-11-11T23:57:05.343"/>
+  <EmploymentHistory EmployerDetail="FIRST REALTY" Designation="" LastUpdatedDate="2008-10-03T09:18:39.903"/>
+  <EmploymentHistory EmployerDetail="FIRTZ REALTY" Designation="" LastUpdatedDate="2007-02-12T04:19:43.827"/>
+  <EmploymentHistory EmployerDetail="FIRZT REALTY COMPANY" Designation="" LastUpdatedDate="2008-10-06T06:30:08.827"/>
+  <EmploymentHistory EmployerDetail="ROPS &amp; REALTY" Designation="" LastUpdatedDate="2006-11-23T02:30:15.603"/>
+  <EmploymentHistory EmployerDetail="SEALRITE INTERNATION" Designation="" LastUpdatedDate="2007-01-26T18:32:46.997"/>
+</Consumer>
