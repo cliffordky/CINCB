@@ -1,0 +1,35 @@
+﻿<RadzenDataGrid @ref="employeeGrid" 
+    AllowRowSelectOnRowClick="true" 
+    AllowFiltering="true" 
+    FilterPopupRenderMode="PopupRenderMode.OnDemand" 
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    AllowPaging="true" 
+    PageSize="4"
+                AllowSorting="true" Data="@employees"
+                SelectionMode="DataGridSelectionMode.Multiple" 
+                @bind-Value="selectedEmployees"
+                TItem="Employee"
+                RowSelect="@HandleRowSelectEvent"
+                RowDeselect="@HandleRowDeselectEvent">
+    <Columns>
+        <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
+            <HeaderTemplate>
+                <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                Value="@(selectedEmployees == null || selectedEmployees?.Any() != true ? false : !employees.All(i => selectedEmployees.Contains(i)) ? null : employees.Any(i => selectedEmployees.Contains(i)))"
+                                Change="@(args => selectedEmployees = args == true ? employees.ToList() : null)" />
+            </HeaderTemplate>
+            <Template Context="data">
+                <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedEmployees != null && selectedEmployees.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { employeeGrid.SelectRow(data); }}) />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="@nameof(Employee.Photo)" Title="Employee" Sortable="false" Filterable="false">
+            <Template Context="data">
+                <RadzenImage Path="@data.Photo" Style="width: 40px; height: 40px;" class="rz-border-radius-2 rz-me-2" AlternateText="@(data.FirstName + " " + data.LastName)" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="@nameof(Employee.FirstName)" Title="First Name" Sortable="true" Filterable="true" />
+        <RadzenDataGridColumn Property="@nameof(Employee.LastName)" Title="Last Name" Sortable="true" Filterable="true" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Roles)" Title="Roles" Sortable="true" Filterable="true" />
+    </Columns>
+</RadzenDataGrid>

@@ -1,0 +1,16 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenRow JustifyContent="JustifyContent.Center" class="rz-h-auto" Style="@style">
+    <RadzenColumn>
+        @Body
+    </RadzenColumn>
+</RadzenRow>
+
+@code {
+    string style { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        string backGroundImage = $"https://picsum.photos/id/{new Random().Next(1, 1000)}/2000/1050";
+        style = $"min-height: 95.8vh;background-image: url('{backGroundImage}')";
+    }
+}

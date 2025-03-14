@@ -1,0 +1,114 @@
+﻿@page "/Account/Manage"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Identity
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Profile</PageTitle>
+
+<h3>Profile</h3>
+<StatusMessage />
+
+<div class="row">
+    <div class="col-md-12">
+        <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
+                <label for="username" class="form-label">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" value="@CustomerGroup1" class="form-control" disabled />
+                <label for="repcode" class="form-label">Regional Manager Code</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" value="@CustomerGroup2" class="form-control" disabled />
+                <label for="repcode" class="form-label">Sales Representative Code</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" value="@CustomerGroup3" class="form-control" disabled />
+                <label for="repcode" class="form-label">Sales Administrator Code</label>
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.FirstName" class="form-control" placeholder="" />
+                <label for="firstname" class="form-label">FirstName</label>
+                <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.LastName" class="form-control" placeholder="" />
+                <label for="lastname" class="form-label">LastName</label>
+                <ValidationMessage For="() => Input.LastName" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                <label for="phone-number" class="form-label">Phone number</label>
+                <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+            </div>
+            <Button Color="ButtonColor.Primary" Outline="true" Size="ButtonSize.Large" Type="ButtonType.Submit" class="w-100">
+                <Icon Name="IconName.Floppy"></Icon> Update profile
+            </Button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private ApplicationUser user = default!;
+    private string? username;
+    private string? CustomerGroup2;
+    private string? CustomerGroup1;
+    private string? CustomerGroup3;
+    private string? phoneNumber;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        username = await UserManager.GetUserNameAsync(user);
+        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        Input.FirstName ??= user.FirstName;
+        Input.LastName ??= user.LastName;
+        Input.PhoneNumber ??= phoneNumber;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        user.FirstName = Input.FirstName;
+        user.LastName = Input.LastName;
+        user.PhoneNumber = Input.PhoneNumber;
+
+        var result = await UserManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update user.", HttpContext);
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "FirstName")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "LastName")]
+        public string LastName { get; set; }
+
+        [Phone]
+        [Display(Name = "Phone number")]
+        public string? PhoneNumber { get; set; }
+    }
+}

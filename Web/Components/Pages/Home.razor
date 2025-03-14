@@ -1,0 +1,22 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using SmartComponents
+@using Core;
+@using Microsoft.AspNetCore.Authorization
+
+
+
+@attribute [Authorize]
+@* @inject PreloadService Preloader; *@
+@inject NavigationManager NavManager;
+@inject Core.Integrations.IOpenAI openAI;
+
+
+
+ <EditForm class="row" method="post" FormName="detail-form" Model="@Input" Context="formContext">
+     <RadzenTextBox @bind-Value="Input!.CronInstruction"  Style="width: 80%" aria-label="Default TextBox" />
+    <RadzenButton ButtonStyle="ButtonStyle.Primary" @onclick="@(() => Submit(formContext))" Icon="add_circle" />
+     </EditForm>
+
+     <h1>@Description</h1>
+

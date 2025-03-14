@@ -1,0 +1,47 @@
+﻿@page "/Account/Manage/PersonalData"
+
+@inject IdentityUserAccessor UserAccessor
+
+<PageTitle>Personal Data</PageTitle>
+
+<StatusMessage />
+<h3>Personal Data</h3>
+
+<div class="row">
+    <div class="col-md-12">
+        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p>
+            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+        </p>
+        <div class="row">
+            <div class="col-md-6 justify-content-md-end">
+                <form action="Account/Manage/DownloadPersonalData" method="post">
+                    <AntiforgeryToken />
+                    <Button Color="ButtonColor.Primary" Outline="true" Type="ButtonType.Submit">
+                        <Icon Name="IconName.Download"></Icon> Download
+                    </Button>
+                    <Button Color="ButtonColor.Danger" Outline="true" Type="ButtonType.Link" @onclick="@(() => OnDeleteClick())">
+                        <Icon Name="IconName.Trash3"></Icon> Delete
+                    </Button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ = await UserAccessor.GetRequiredUserAsync(HttpContext);
+    }
+
+    private void OnDeleteClick()
+    {
+        NavigationManager.NavigateTo("/Account/Manage/DeletePersonalData");
+    }
+}

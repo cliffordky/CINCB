@@ -1,0 +1,39 @@
+﻿@page "/asset-management/asset-list"
+@rendermode InteractiveServer
+
+@using Core;
+@inject IAsset _asset;
+@inject NavigationManager NavManager;
+
+<PageTitle>Assets</PageTitle>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn Size="12" SizeMD="12">
+        <RadzenCard>
+            <RadzenDataGrid @ref="listGrid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true"
+                            PageSize="20" AllowPaging="true"
+                            FilterMode="FilterMode.Advanced"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.Or" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                            Data="@listItems" RowRender="@RowRender" LoadChildData="@LoadChildData" TItem="ListModel"
+                            RowCollapse="@(args => listGrid.ColumnsCollection.ToList().ForEach(c => c.ClearFilters()))"
+                            SelectionMode="DataGridSelectionMode.Single"
+                            RowSelect="@HandleRowClickEvent">
+                <HeaderTemplate>
+                    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Asset" Click="@AddAsset_Clicked" />
+                </HeaderTemplate>
+                <Columns>
+                    <RadzenDataGridColumn Property="@nameof(ListModel.ImageUrl)" Sortable="false" Filterable="false">
+                        <Template Context="data">
+                            <RadzenImage Path="@data.ImageUrl" Style="width: 40px; height: 40px;" class="rz-border-radius-2 rz-me-2" AlternateText="@(data.Name)" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(ListModel.Name)" Title="Name" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(ListModel.RegisterNumber)" Title="Register #" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(ListModel.PurchaseDate)" Title="Purchased" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(ListModel.ModifiedDate)" Title="Last Updated" Sortable="true" Filterable="true" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>

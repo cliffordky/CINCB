@@ -1,0 +1,140 @@
+﻿@page "/Account/ConfirmEmail"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Identity
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Account Confirmation</PageTitle>
+
+<div class="card border-0 rounded-4">
+    <div class="card-body p-3 p-md-4 p-xl-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-4">
+                    <h3>Confirm Your Account</h3>
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            var statusMessageClass = Message.StartsWith("Error") ? "danger" : "success";
+            <div class="alert alert-@statusMessageClass" role="alert">
+                @Message
+            </div>
+        }
+        <EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <input type="hidden" name="Input.Id" value="@Input.Id" />
+            <div class="row gy-3 overflow-hidden">
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Please enter your password." />
+                        <label for="password" class="form-label">Password</label>
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Please confirm your password." />
+                        <label for="confirm-password" class="form-label">Confirm password</label>
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-grid">
+                        <button class="btn btn-primary btn-lg" type="submit">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<IdentityError>? identityErrors;
+
+    private string? Message { get; set; } = null;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? UserId { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? Code { get; set; }
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserId is null || Code is null)
+        {
+            RedirectManager.RedirectTo("");
+        }
+
+        var user = await UserManager.FindByIdAsync(UserId);
+        if (user is null)
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            Message = $"Error loading user with ID {UserId}";
+        }
+        else
+        {
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
+            var result = await UserManager.ConfirmEmailAsync(user, code);
+            if (result.Succeeded)
+            {
+                Input.Id = user.Id;
+                Message = $"Thank you for confirming your email, please set up a password";
+            }
+            else
+            {
+                Message = $"Error: {string.Join(", ", result.Errors.Select(error => error.Description))}";
+            }
+        }
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        var user = await UserManager.FindByIdAsync(Input.Id.ToString());
+        if (user is null)
+        {
+            // Don't reveal that the user does not exist
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            Message = $"Error loading user with ID {UserId}";
+            //RedirectManager.RedirectTo("");
+        }
+        var code = await UserManager.GeneratePasswordResetTokenAsync(user!);
+        var result = await UserManager.ResetPasswordAsync(user!, code, Input.Password);
+        if (result.Succeeded)
+        {
+            RedirectManager.RedirectTo("/Account/Login");
+        }
+
+        Message = $"Error: {string.Join(", ", result.Errors.Select(error => error.Description))}";
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        public int Id { get; set; } = 0;
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

@@ -1,0 +1,220 @@
+﻿@page "/admin/users"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using Identity
+@using System.Security.Claims
+@using Web.Components.EmailTemplates
+@using Core
+
+<PageTitle>Users</PageTitle>
+
+<Preload LoadingText="Loading..." />
+
+<Breadcrumb style="--bs-breadcrumb-divider: '>';" Items="navItems" />
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <Alert Dismissable="false" Color="AlertColor.Success"><Icon Name="IconName.Info" class="me-2"></Icon> @Message</Alert>
+}
+
+<ConfirmDialog @ref="dialog" />
+
+<div class="row">
+    <div class="col-md-12">
+        <Button Color="ButtonColor.Primary" Outline="true" @onclick="@(() => OnAddUserClick())">
+            <Icon Name="IconName.PersonPlus"></Icon> Add User
+        </Button>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <Grid @ref="usersGrid" TItem="ApplicationUser" Data="users"
+              class="table table-hover table-bordered table-striped"
+              HeaderRowCssClass="bg-light text-black border-bottom-0"
+              AllowFiltering="true"
+              AllowPaging="true"
+              PageSizeSelectorVisible="true"
+              PageSizeSelectorItems="@(new int[] { 5,10,20,50,100 })"
+              AllowSorting="true"
+              Responsive="true">
+            <GridColumn TItem="ApplicationUser" HeaderText="FirstName" SortKeySelector="@(item => item.FirstName)" PropertyName="FirstName">
+                @context.FirstName
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="LastName" SortKeySelector="@(item => item.LastName)" PropertyName="LastName">
+                @context.LastName
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Email Addresss" SortKeySelector="@(item => item.Email)" PropertyName="Email">
+                @context.Email
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" HeaderText="Mobile Number" SortKeySelector="@(item => item.PhoneNumber)" PropertyName="PhoneNumber">
+                @context.PhoneNumber
+            </GridColumn>
+            <GridColumn TItem="ApplicationUser" PropertyName="Id" Filterable="false" Sortable="false" HeaderText="Action" TextNoWrap="true" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
+                <ChildContent>
+                    <Button Color="ButtonColor.Primary" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => OnEditClick(context))">
+                        <Icon Name="IconName.Pencil"></Icon>
+                    </Button>
+                    <Button Color="ButtonColor.Danger" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => ConfirmationDeleteAsync(context))">
+                        <Icon Name="IconName.Trash3"></Icon>
+                    </Button>
+                    <Button Color="ButtonColor.Secondary" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => OnResendClickAsync(context.Id))">
+                        <Icon Name="IconName.EnvelopeExclamation"></Icon>
+                    </Button>
+                    <Button Color="ButtonColor.Secondary" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => OnImpersonateUser(context.Id))">
+                        <Icon Name="IconName.PersonExclamation"></Icon>
+                    </Button>
+                </ChildContent>
+            </GridColumn>
+        </Grid>
+    </div>
+</div>
+
+@code {
+    [Inject] PreloadService Preloader { get; set; }
+    [Inject] IEmailService EmailSender { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] UserManager<ApplicationUser> UserManager { get; set; }
+    [Inject] HtmlRenderer TemplateBuilder { get; set; }
+    [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
+    [Inject] SignInManager<ApplicationUser> SignInManager { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private List<BreadcrumbItem>? navItems;
+    private Grid<ApplicationUser> usersGrid;
+    private List<ApplicationUser> users = new List<ApplicationUser>();
+    private string? Message { get; set; } = string.Empty;
+    private ConfirmDialog dialog;
+
+    private void OnEditClick(ApplicationUser user)
+    {
+        NavigationManager.NavigateTo($"/admin/user/{user.Id}");
+    }
+
+    private async Task ConfirmationDeleteAsync(ApplicationUser user)
+    {
+        var confirmation = await dialog.ShowAsync(
+            title: $"Are you sure you want to delete {user.Email}?",
+            message1: "This will delete the record. Once deleted can not be rolled back.",
+            message2: "Do you want to proceed?");
+
+        if (confirmation)
+        {
+            var dbUser = await UserManager.FindByIdAsync(user.Id.ToString());
+            await ((IUserEmailStore<ApplicationUser>)UserStore).SetEmailAsync(user, $"{Guid.NewGuid().ToString()}_{dbUser.Email}", CancellationToken.None);
+            dbUser.UserName = $"{Guid.NewGuid().ToString()}_{dbUser.UserName}";
+            dbUser.IsDeleted = true;
+            dbUser.LockoutEnd = DateTimeOffset.MaxValue;
+            var result = await UserManager.UpdateAsync(dbUser);
+            var userRoles = await UserManager.GetRolesAsync(user);
+
+            foreach (string role in userRoles)
+                await UserManager.RemoveFromRoleAsync(dbUser, role);
+
+            if (users.Remove(dbUser))
+                await usersGrid.RefreshDataAsync();
+        }
+    }
+
+    private async Task OnImpersonateUser(int userId)
+    {
+        int adminUserId = 0;
+
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var adminUser = authState?.User;
+            if (adminUser is not null)
+            {
+                if (!int.TryParse(adminUser.FindFirstValue(ClaimTypes.Sid), out adminUserId))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        var user = await UserManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            Message = "Unable to resolve the selected user";
+            return;
+        }
+
+
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+        var newClaims = new List<Claim>();
+        newClaims.Add(new Claim("AdminUserId", adminUserId.ToString()));
+        await SignInManager.SignInWithClaimsAsync(user, false, newClaims);
+
+        NavigationManager.NavigateTo($"/admin/user/{user.Id}");
+    }
+
+    private async Task OnResendClickAsync(int userId)
+    {
+        var user = await UserManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            Message = "Verification email sent. Please check your email.";
+            return;
+        }
+
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+
+        var html = await TemplateBuilder.Dispatcher.InvokeAsync(async () =>
+               {
+                   var dictionary = new Dictionary<string, object?>
+                                       {
+                    { "Context", new AccountConfirmation.AccountConfirmationModel()
+                    {
+                     FirstName = user.FirstName,
+                     VerificationLink = callbackUrl
+                    } }
+                                       };
+
+                   var parameters = ParameterView.FromDictionary(dictionary);
+                   var output = await TemplateBuilder.RenderComponentAsync<AccountConfirmation>(parameters);
+
+                   return output.ToHtmlString();
+               });
+
+
+        await EmailSender.SendEmailAsync(user.Email, "Confirm Your Account", html);
+
+        Message = "Verification email sent. Please check your email.";
+    }
+
+    private void OnAddUserClick()
+    {
+        NavigationManager.NavigateTo("/admin/user/add");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Preloader.Show();
+
+        navItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem{ Text = "Home", Href ="/" },
+            new BreadcrumbItem{ Text = "Users", IsCurrentPage = true }
+        };
+
+        users = UserManager.Users.Where(u => !u.IsDeleted).ToList();
+
+        Preloader.Hide();
+    }
+}

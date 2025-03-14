@@ -1,0 +1,71 @@
+﻿@page "/meta/asset-type"
+@using Core;
+@using Microsoft.AspNetCore.Authorization
+
+@inherits PageBase
+@inject IMeta _meta;
+@inject IAsset _asset;
+@inject NotificationService NotificationService
+@inject Radzen.DialogService dialogService
+@inject NavigationManager NavigationManager;
+
+@if (input == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" @bind-Visible="IsAlertVisible">
+        @AlertBody
+    </RadzenAlert>
+    <RadzenRow Gap="1rem">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenTemplateForm Data="@input" Submit="@((AssetTypeModel args) => { Submit(args); })" InvalidSubmit=@OnInvalidSubmit>
+                <RadzenStack>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenFormField Text="Name" Style="width: 100%;">
+                            <RadzenTextBox @bind-Value="@input.Name" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenFormField Text="Description" Style="width: 100%;">
+                            <RadzenTextArea @bind-Value="@input.Description" Rows="10" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenStack>
+                     <LastModifiedBy UserId="@input.ModifiedUser" ModifiedDate="@input.ModifiedDate" />
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-8 rz-mb-4  rz-mb-2">
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Save" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Icon="cancel" Text="Delete" Click=@(args => dialogService.Confirm("Are you sure?", "All related assets and attributes will be deleted!", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" })) />
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="1rem">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenCard>
+                <RadzenDataGrid @ref="listGrid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true"
+                                PageSize="20" AllowPaging="true"
+                                FilterMode="FilterMode.Advanced"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                LogicalFilterOperator="LogicalFilterOperator.Or" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                                Data="@listItems"
+                                TItem="AttributeModel"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                RowSelect="@HandleRowClickEvent"
+                                Visible="@IsAttributeGridVisible">
+                    <HeaderTemplate>
+                        <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Attribute" Click="@Add_Clicked" />
+                    </HeaderTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn Property="@nameof(AssetTypeModel.Name)" Title="Name" Sortable="true" Filterable="true" />
+                        <RadzenDataGridColumn Property="@nameof(AssetTypeModel.Description)" Title="Description" Sortable="true" Filterable="true" />
+                    </Columns>
+                </RadzenDataGrid>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+
+     
+}
+

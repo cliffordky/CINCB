@@ -1,0 +1,99 @@
+﻿@page "/admin/roles"
+@rendermode InteractiveServer
+
+
+<PageTitle>Roles</PageTitle>
+
+<Preload LoadingText="Loading..." />
+
+<Breadcrumb style="--bs-breadcrumb-divider: '>';" Items="navItems" />
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <Alert Dismissable="false" Color="AlertColor.Success"><Icon Name="IconName.Info" class="me-2"></Icon> @Message</Alert>
+}
+<div class="row">
+    <div class="col-md-12">
+        <Button Color="ButtonColor.Primary" Outline="true" @onclick="@(() => OnAddRolesClick())">
+            <Icon Name="IconName.PersonPlus"></Icon> Add Role
+        </Button>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <Grid @ref="rolesGrid" TItem="ApplicationRole" Data="roles"
+              class="table table-hover table-bordered table-striped"
+              HeaderRowCssClass="bg-light text-black border-bottom-0"
+              AllowFiltering="true"
+              AllowPaging="true"
+              PageSizeSelectorVisible="true"
+              PageSizeSelectorItems="@(new int[] { 5,10,20,50,100 })"
+              AllowSorting="true"
+              Responsive="true"
+              AllowRowClick="true"
+              OnRowClick="OnRowClickAsync">
+            <GridColumn TItem="ApplicationRole" HeaderText="Name" SortKeySelector="@(item => item.Name)" PropertyName="Name">
+                @context.Name
+            </GridColumn>
+            <GridColumn TItem="ApplicationRole" PropertyName="Id" Filterable="false" Sortable="false" HeaderText="Action" TextNoWrap="true" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
+                <ChildContent>
+                    <Button Color="ButtonColor.Primary" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => OnEditClick(context))">
+                        <Icon Name="IconName.Pencil"></Icon>
+                    </Button>
+                    <Button Color="ButtonColor.Danger" Type="ButtonType.Link" Size="ButtonSize.Small" Outline="true" @onclick="@(() => OnDeleteClick(context))">
+                        <Icon Name="IconName.Trash3"></Icon>
+                    </Button>
+                </ChildContent>
+            </GridColumn>
+        </Grid>
+    </div>
+</div>
+
+@code {
+    [Inject] PreloadService Preloader { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] RoleManager<ApplicationRole> RoleManager { get; set; }
+
+    private List<BreadcrumbItem>? navItems;
+    private Grid<ApplicationRole> rolesGrid;
+    private List<ApplicationRole> roles = new List<ApplicationRole>();
+    private string? Message { get; set; } = string.Empty;
+
+
+    private void OnEditClick(ApplicationRole role)
+    {
+        NavigationManager.NavigateTo($"/admin/role/{role.Id}");
+    }
+
+    private void OnDeleteClick(ApplicationRole role)
+    {
+        //TODO
+    }
+
+    private void OnAddRolesClick()
+    {
+        NavigationManager.NavigateTo("/admin/role/add");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Preloader.Show();
+
+        navItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem{ Text = "Home", Href ="/" },
+            new BreadcrumbItem{ Text = "Roles", IsCurrentPage = true }
+        };
+
+        roles = RoleManager.Roles.ToList();
+
+        Preloader.Hide();
+    }
+
+    private async Task OnRowClickAsync(GridRowEventArgs<ApplicationRole> args)
+    {
+        StateHasChanged();
+    }
+
+
+}

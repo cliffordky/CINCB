@@ -1,0 +1,176 @@
+﻿@page "/admin/user/{id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Edit User</PageTitle>
+
+
+<Breadcrumb style="--bs-breadcrumb-divider: '>';" Items="navItems" />
+<div class="row">
+    <div class="col-md-12">
+        <StatusMessage Message="@Message" />
+        <EditForm Model="Input" FormName="profile" OnValidSubmit="UpdateUser" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="col-12">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.UserName" class="form-control" disabled />
+                    <label for="username" class="form-label">Username</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.FirstName" class="form-control" placeholder="" />
+                    <label for="firstname" class="form-label">FirstName</label>
+                    <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.LastName" class="form-control" placeholder="" />
+                    <label for="lastname" class="form-label">LastName</label>
+                    <ValidationMessage For="() => Input.LastName" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                    <label for="phone-number" class="form-label">Phone number</label>
+                    <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.CustomerGroup1" class="form-control" aria-required="true" />
+                    <label for="CustomerGroup1" class="form-label">Customer Group 1</label>
+                    <ValidationMessage For="() => Input.CustomerGroup1" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.CustomerGroup2" class="form-control" aria-required="true" />
+                    <label for="CustomerGroup2" class="form-label">Customer Group 2</label>
+                    <ValidationMessage For="() => Input.CustomerGroup2" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.CustomerGroup3" class="form-control" aria-required="true" />
+                    <label for="CustomerGroup3" class="form-label">Customer Group 3</label>
+                    <ValidationMessage For="() => Input.CustomerGroup3" class="text-danger" />
+                </div>
+            </div>
+            @foreach (var role in roles)
+            {
+                <div class="form-check form-switch mb-3">
+                    <input type="checkbox" value="@role" class="form-check-input" checked="@(Input.Roles.Any(a => a.Equals(role)))" @onchange="@((e) => CheckboxChanged(e, role))" />
+                    <label class="form-check-label" for="Roles">@role</label>
+                </div>
+            }
+            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit">
+                <Icon Name="IconName.Save"></Icon> Submit
+            </Button>
+            <Button Color="ButtonColor.Secondary" Type="ButtonType.Link" onclick="@(() => NavigationManager.NavigateTo("/admin/users"))">
+                <Icon Name="IconName.ArrowLeft"></Icon> Back
+            </Button>
+
+        </EditForm>
+
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    [Inject]
+    public UserManager<ApplicationUser> UserManager { get; set; }
+    [Inject]
+    public RoleManager<ApplicationRole> RoleManager { get; set; }
+    [Parameter]
+    public int id { get; set; }
+
+    private ApplicationUser user;
+    private List<string> roles = new();
+    private List<BreadcrumbItem>? navItems;
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+    private IEnumerable<IdentityError>? identityErrors;
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        user = await UserManager.FindByIdAsync(id.ToString());
+        roles = RoleManager.Roles.Select(r => r.Name!).ToList();
+        Input.UserName = await UserManager.GetUserNameAsync(user);
+        Input.PhoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        Input.FirstName ??= user.FirstName;
+        Input.LastName ??= user.LastName;
+        Input.Roles = (await UserManager.GetRolesAsync(user)).ToList();
+        navItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem{ Text = "Home", Href ="/" },
+            new BreadcrumbItem{ Text = "Users", Href ="/admin/users" },
+            new BreadcrumbItem{ Text = "Edit", IsCurrentPage = true }
+        };
+    }
+
+    private void CheckboxChanged(ChangeEventArgs e, string key)
+    {
+        if ((bool)e.Value!)
+        {
+            Input.Roles.Add(key);
+        }
+        else
+        {
+            Input.Roles.Remove(key);
+        }
+    }
+
+    async Task UpdateUser()
+    {
+        var dbUser = await UserManager.FindByIdAsync(id.ToString());
+        dbUser.FirstName = Input.FirstName;
+        dbUser.LastName = Input.LastName;
+        dbUser.PhoneNumber = Input.PhoneNumber;
+        var result = await UserManager.UpdateAsync(dbUser);
+        if (result.Succeeded)
+        {
+            var currentRoles = await UserManager.GetRolesAsync(dbUser);
+            result = await UserManager.RemoveFromRolesAsync(dbUser, currentRoles);
+            if (result.Succeeded)
+            {
+                result = await UserManager.AddToRolesAsync(dbUser, Input.Roles);
+                if (result.Succeeded)
+                {
+                    NavigationManager.NavigateTo("/admin/users");
+                }
+            }
+        }
+        identityErrors = result.Errors;
+        return;
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "UserName")]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "FirstName")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "LastName")]
+        public string LastName { get; set; }
+
+        [Phone]
+        [Display(Name = "Phone number")]
+        public string? PhoneNumber { get; set; }
+
+        // [Required]
+        [Display(Name = "Customer Group 2")]
+        public string CustomerGroup2 { get; set; }
+
+        // [Required]
+        [Display(Name = "Customer Group 1")]
+        public string CustomerGroup1 { get; set; }
+
+        // [Required]
+        [Display(Name = "Customer Group 3")]
+        public string CustomerGroup3 { get; set; }
+
+        [Display(Name = "Roles")]
+        public List<string> Roles { get; set; } = new List<string>();
+    }
+}

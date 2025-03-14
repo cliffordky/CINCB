@@ -1,0 +1,23 @@
+﻿<PageTitle>Account Confirmation</PageTitle>
+
+
+<h1>Welcome to WHOLESALE</h1>
+<p>Dear @Context.FirstName,</p>
+<p>Thank you for signing up for our service. We are thrilled to have you on board.</p>
+<p>To get started, please verify your account by clicking the button below:</p>
+<p><a href="@Context.VerificationLink" class="button">Verify</a></p>
+<p>If you have any questions, feel free to reach out to our support team.</p>
+<p>Best regards,<br>WHOLESALE</p>
+
+
+@code{
+    [Parameter]
+    public AccountConfirmationModel Context { get; set; }
+
+
+    public class AccountConfirmationModel
+    {
+        public string FirstName { get; set; }
+        public string VerificationLink { get; set; }
+    }
+}

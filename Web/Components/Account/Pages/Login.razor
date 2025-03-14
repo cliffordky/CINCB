@@ -1,0 +1,221 @@
+﻿@page "/Account/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<RadzenCard class="rz-my-12 rz-mx-auto rz-p-4 rz-p-md-12" style="max-width: 600px;">
+    <EditForm id="account" Model="@Input" method="post" FormName="login" OnValidSubmit="LoginUser">
+        <DataAnnotationsValidator />
+        <RadzenFormField Text="Login (e-mail)" Style="width: 100%;" AllowFloatingLabel="false">
+            <End>
+                <RadzenIcon Icon="alternate_email" />
+            </End>
+            <ChildContent>
+                <RadzenTextBox @bind-Value="@Input.Email" Style="width: 100%;" Name="Input.Email" />
+            </ChildContent>
+            <Helper>
+                <ValidationMessage For="() => Input.Email" class="text-danger" />
+            </Helper>
+        </RadzenFormField>
+        <RadzenFormField Text="Password" Style="width: 100%;" AllowFloatingLabel="false">
+            <End>
+                <RadzenIcon Icon="password" />
+            </End>
+            <ChildContent>
+                <RadzenTextBox @bind-Value="@Input.Password" Style="width: 100%;" Name="Input.Password" />
+            </ChildContent>
+            <Helper>
+                <ValidationMessage For="() => Input.Password" class="text-danger" />
+            </Helper>
+        </RadzenFormField>
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Normal" AlignItems="AlignItems.Center" class="rz-pt-10">
+                @* <RadzenSwitch @bind-Value=@Input.RememberMe Change=@(args => OnChange(args)) InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Switch value" }})" /> *@
+                <RadzenCheckBox @bind-Value=@Input.RememberMe Name="RememberMe" />
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Login" Variant="Variant.Outlined" class="rz-mx-auto" />
+            </RadzenStack>
+
+  
+
+            
+            <RadzenButton Variant="Variant.Text" Click=@(args => OnForgotPasswordClick()) Text="Forgot Password" ButtonStyle="ButtonStyle.Info" class="rz-mx-auto" />
+
+            <RadzenCard Variant="Variant.Outlined" class="rz-mx-auto" Style="max-width: 500px">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center">
+                    <RadzenText TextStyle="TextStyle.Body1">Don't have an account?</RadzenText>
+                    <RadzenButton Variant="Variant.Text" Click=@(args => OnRegisterClick()) Text="Register" ButtonStyle="ButtonStyle.Info" />
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenStack>
+    </EditForm>
+</RadzenCard>
+
+
+
+@*
+<div class="card border-0 rounded-4">
+    <div class="card-body p-3 p-md-4 p-xl-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-4">
+                    <h3>Sign in</h3>
+                    <p>Don't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+        <StatusMessage Message="@errorMessage" />
+        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="row gy-3 overflow-hidden">
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label for="email" class="form-label">Email</label>
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label for="password" class="form-label">Password</label>
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                        <label class="form-check-label text-secondary" for="remember_me">
+                            Keep me logged in
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-grid">
+                        <button class="btn btn-primary btn-lg" type="submit">Log in now</button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+        <div class="row">
+            <div class="col-6">
+                <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-start mt-4">
+                    <a href="Account/ForgotPassword">Forgot password</a>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
+                    <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  *@
+
+@code {
+
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private void OnForgotPasswordClick()
+    {
+    }
+    private void OnRegisterClick()
+    {
+    }
+
+    void OnChange(bool? value)
+    {
+        Input.RememberMe = false;
+
+        if (value.HasValue)
+            Input.RememberMe = value.Value;
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // try
+        // {
+        //     if (HttpMethods.IsGet(HttpContext.Request.Method))
+        //     {
+        //         // Clear the existing external cookie to ensure a clean login process
+        //         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
+        // }
+
+        // var result = await SignInManager.PasswordSignInAsync("cliff.redfern@gmail.com", "Me27aJAh!", Input.RememberMe, lockoutOnFailure: false);
+        // if (result.Succeeded)
+        // {
+        //     Logger.LogInformation("User logged in.");
+        //     RedirectManager.RedirectTo(ReturnUrl);
+        // }
+    }
+
+    public async Task LoginUser()
+    {
+        try
+        {
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("User logged in.");
+                NavigationManager.NavigateTo("/", true);
+                // RedirectManager.RedirectTo("https://localhost:7003/");
+            }
+            else if (result.RequiresTwoFactor)
+            {
+                RedirectManager.RedirectTo(
+                    "Account/LoginWith2fa",
+                    new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+            }
+            else if (result.IsLockedOut)
+            {
+                Logger.LogWarning("User account locked out.");
+                RedirectManager.RedirectTo("Account/Lockout");
+            }
+            else
+            {
+                errorMessage = "Error: Invalid login attempt.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; } = true;
+    }
+}

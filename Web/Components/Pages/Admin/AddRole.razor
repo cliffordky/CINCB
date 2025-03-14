@@ -1,0 +1,98 @@
+﻿@page "/admin/role/add"
+
+@using System.ComponentModel.DataAnnotations;
+@inject RoleManager<ApplicationRole> RoleManager
+@inject ILogger<AddUser> Logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add Role</PageTitle>
+
+@* <Breadcrumb style="--bs-breadcrumb-divider: '>';" Items="navItems" /> *@
+
+<div class="row">
+    <div class="col-md-12">
+        <StatusMessage Message="@Message" />
+        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="CreateRole" FormName="addRole">
+            <DataAnnotationsValidator />
+            <h2>Create a new Role</h2>
+            <hr />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Name" class="form-control" autocomplete="Name" aria-required="true" />
+                <label for="name">Name</label>
+                <ValidationMessage For="() => Input.Name" class="text-danger" />
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
+            <a href="/admin/roles">Back to Roles</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    // private List<BreadcrumbItem>? navItems;
+
+    private IEnumerable<IdentityError>? identityErrors;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override void OnInitialized()
+    {
+        navItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem{ Text = "Home", Href ="/" },
+            new BreadcrumbItem{ Text = "Roles", Href ="/admin/roles" },
+            new BreadcrumbItem{ Text = "Add", IsCurrentPage = true }
+        };
+
+
+    }
+    public async Task CreateRole(EditContext editContext)
+    {
+        var role = CreateNewRole();
+        role.Name = Input.Name;
+
+        var result = await RoleManager.CreateAsync(role);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        NavigationManager.NavigateTo("/admin/roles");
+    }
+
+    private ApplicationRole CreateNewRole()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationRole>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationRole)}'. " +
+                $"Ensure that '{nameof(ApplicationRole)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "Name")]
+        public string Name { get; set; } = "";
+
+    }
+}
+

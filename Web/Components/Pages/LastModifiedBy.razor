@@ -1,0 +1,36 @@
+﻿@using Core
+@inject IAccess _access;
+
+<RadzenRow>
+    <RadzenColumn Size="12" SizeMD="12">
+
+        <RadzenAlert Variant="Variant.Flat" AlertStyle="AlertStyle.Light" Size="AlertSize.ExtraSmall" Shade="Shade.Light" AllowClose=false class="rz-w-auto">
+            @DisplayText
+        </RadzenAlert>
+
+    </RadzenColumn>
+</RadzenRow>
+
+@code {
+    [Parameter] public int UserId { get; set; } = 0;
+    [Parameter] public DateTime? ModifiedDate { get; set; } = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (UserId > 0)
+        {
+            var user = await _access.GetUserByIdAsync(UserId);
+            if (user != null)
+            {
+                DisplayText = $"Last Modified By {user.Value.FirstName} {user.Value.LastName}";
+                if (ModifiedDate.HasValue)
+                {
+
+                    DisplayText += $" on {ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")}";
+                }
+            }
+        };
+    }
+
+    protected string DisplayText { get; set; }
+}

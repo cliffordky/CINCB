@@ -1,0 +1,240 @@
+﻿@page "/admin/user/add"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using PasswordGenerator
+@using Web.Components.EmailTemplates
+@using Core
+@using Microsoft.AspNetCore.Components
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailService EmailSender
+@inject ILogger<AddUser> Logger
+@inject NavigationManager NavigationManager
+@inject HtmlRenderer TemplateBuilder
+
+<PageTitle>Register</PageTitle>
+
+<Breadcrumb style="--bs-breadcrumb-divider: '>';" Items="navItems" />
+
+<div class="row">
+    <div class="col-md-12">
+        <StatusMessage Message="@Message" />
+        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+            <DataAnnotationsValidator />
+            <h2>Add a new User</h2>
+            <hr />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label for="email">Email</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.FirstName" class="form-control" autocomplete="firstname" aria-required="true" placeholder="" />
+                <label for="firstname">FirstName</label>
+                <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.LastName" class="form-control" autocomplete="lastname" aria-required="true" placeholder="" />
+                <label for="lastname">LastName</label>
+                <ValidationMessage For="() => Input.LastName" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.CustomerGroup1" class="form-control" autocomplete="CustomerGroup1" aria-required="true" placeholder="" />
+                <label for="CustomerGroup1">Customer Group 1</label>
+                <ValidationMessage For="() => Input.CustomerGroup1" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.CustomerGroup2" class="form-control" autocomplete="CustomerGroup2" aria-required="true" placeholder="" />
+                <label for="CustomerGroup2">Customer Group 2</label>
+                <ValidationMessage For="() => Input.CustomerGroup2" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.CustomerGroup3" class="form-control" autocomplete="CustomerGroup3" aria-required="true" placeholder="" />
+                <label for="CustomerGroup3">Customer Group 3</label>
+                <ValidationMessage For="() => Input.CustomerGroup3" class="text-danger" />
+            </div>
+            @foreach (var role in roles)
+            {
+                <div class="form-check form-switch mb-3">
+                    <input type="checkbox" value="@role" class="form-check-input" checked="@(Input.Roles.Any(a => a.Equals(role)))" @onchange="@((e) => CheckboxChanged(e, role))" />
+                    <label class="form-check-label"  for="Roles">@role</label>
+                </div>
+            }
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Add</button>
+        </EditForm>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
+            <a href="/admin/users">Back to Users</a>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    public RoleManager<ApplicationRole> RoleManager { get; set; }
+
+    private List<BreadcrumbItem>? navItems;
+
+    private IEnumerable<IdentityError>? identityErrors;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+    private List<string> roles = new ();
+
+    protected override void OnInitialized()
+    {
+        navItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem{ Text = "Home", Href ="/" },
+            new BreadcrumbItem{ Text = "Users", Href ="/admin/users" },
+            new BreadcrumbItem{ Text = "Add", IsCurrentPage = true }
+        };
+
+        roles = RoleManager.Roles.Select(r => r.Name!).ToList();
+        Input.Roles = new List<string>();
+    }
+
+    private void CheckboxChanged(ChangeEventArgs e, string key)
+    {
+        if ((bool)e.Value!)
+        {
+            Input.Roles.Add(key);
+        }
+        else
+        {
+            Input.Roles.Remove(key);
+        }
+    }
+
+    public async Task RegisterUser(EditContext editContext)
+    {
+        var user = CreateUser();
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+        //bind additional fields
+        user.FirstName = Input.FirstName;
+        user.LastName = Input.LastName;
+
+        var result = await UserManager.CreateAsync(user, new Password().IncludeLowercase().IncludeUppercase().IncludeNumeric().IncludeSpecial().Next());
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        Logger.LogInformation("New User created");
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+
+        var html = await TemplateBuilder.Dispatcher.InvokeAsync(async () =>
+        {
+            var context = new AccountConfirmation.AccountConfirmationModel()
+                {
+                    FirstName = user.FirstName,
+                    VerificationLink = callbackUrl
+                };
+
+            var dictionary = new Dictionary<string, object?> { { "Context", context } };
+
+            var parameters = ParameterView.FromDictionary(dictionary);
+            var output = await TemplateBuilder.RenderComponentAsync<AccountConfirmation>(parameters);
+
+            return output.ToHtmlString();
+        });
+
+
+        await EmailSender.SendEmailAsync(Input.Email, "Confirm Your Account", html);//   .SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+        //If you have a rep code than add the role
+        if (Input.Roles.Any())
+        {
+            result = await UserManager.AddToRolesAsync(user, Input.Roles);
+            if (result.Succeeded){
+                NavigationManager.NavigateTo("/admin/users");
+            }
+            else
+            {
+                identityErrors = result.Errors;
+                return;
+            }
+        }
+    }
+
+    private ApplicationUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!UserManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<ApplicationUser>)UserStore;
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "FirstName")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "LastName")]
+        public string LastName { get; set; } = string.Empty;
+
+        
+        [Required]
+        [Display(Name = "Customer Group 1")]
+        public string CustomerGroup1 { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Customer Group 2")]
+        public string CustomerGroup2 { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Customer Group 3")]
+        public string CustomerGroup3 { get; set; } = string.Empty;
+
+        [Display(Name = "Roles")]
+        public List<string> Roles { get; set; }
+    }
+}
+

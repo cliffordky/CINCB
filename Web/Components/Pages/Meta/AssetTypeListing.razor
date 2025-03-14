@@ -1,0 +1,35 @@
+﻿@page "/meta/asset-type-list"
+@rendermode InteractiveServer
+
+@using Core;
+@inject IMeta _meta;
+@inject NavigationManager NavigationManager;
+@inject DialogService DialogService
+
+<PageTitle>Sources</PageTitle>
+
+<RadzenRow Gap="1rem">
+    <RadzenColumn Size="12" SizeMD="12">
+        <RadzenCard>
+            <RadzenDataGrid @ref="listGrid" AllowFiltering="true" AllowSorting="true" AllowColumnResize="true"
+                            PageSize="20" AllowPaging="true"
+                            FilterMode="FilterMode.Advanced"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.Or" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                            Data="@listItems"
+                            TItem="AssetTypeModel"
+                            SelectionMode="DataGridSelectionMode.Single"
+                            RowSelect="@HandleRowClickEvent">
+                <HeaderTemplate>
+                    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Asset Type" Click="@Add_Clicked" />
+                </HeaderTemplate>
+                <Columns>
+                    <RadzenDataGridColumn Property="@nameof(AssetTypeModel.Name)" Title="Name" Sortable="true" Filterable="true" />
+                    <RadzenDataGridColumn Property="@nameof(AssetTypeModel.Description)" Title="Description" Sortable="true" Filterable="true" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>
+
+

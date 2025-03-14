@@ -1,0 +1,128 @@
+﻿@inherits LayoutComponentBase
+
+@using Microsoft.AspNetCore.Identity
+@using Web.Components.Account;
+@using Identity
+@using System.Security.Claims;
+@inject NavigationManager NavigationManager
+
+
+<RadzenComponents @rendermode="InteractiveAuto" />
+<RadzenLayout Style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="OnSidebarToggle_Click" />
+            <RadzenLabel Text="Asset Management & Maintenance" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Home" Icon="home" Click="OnHome_Click" />
+            <RadzenPanelMenuItem Text="Assets" Icon="assignment" Click="OnAssets_Click" />
+            <RadzenPanelMenuItem Text="Users" Icon="account_circle" Click="OnUsers_Click" />
+            <RadzenPanelMenuItem Text="Asset Types" Icon="extension" Click="OnAssetTypes_Click" />
+            <form action="Account/Logout" method="post">
+                <AntiforgeryToken />
+                <input type="hidden" name="ReturnUrl" value="" />
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Small"  Text="Logoff"  class="rz-mx-auto rz-mt-10" Variant="Variant.Outlined" Icon="coffee" />
+            </form>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+
+@* <div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="nav-link" href="Account/Manage">
+                        <span data-letters="@initials">@fullName</span>
+                    </NavLink>
+                    &nbsp;
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="" />
+                        <Button Color="ButtonColor.Secondary" Type="ButtonType.Submit" Size="ButtonSize.Small" Outline="true">
+                            <Icon Name="IconName.DoorOpen"></Icon>
+                        </Button>
+                    </form>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div> *@
+
+@code {
+
+    bool sidebarExpanded = true;
+    private string? initials;
+    private string? fullName;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        // fullName = $"{HttpContext.User.FindFirst(ClaimTypes.Name)?.Value} {HttpContext.User.FindFirst(ClaimTypes.Surname)?.Value}";
+        // initials = GetInitials(fullName);
+    }
+
+    // private string GetInitials(string name)
+    // {
+    //     string[] nameSplit = name.Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries);
+
+    //     string initials = "";
+
+    //     foreach (string item in nameSplit)
+    //     {
+    //         initials += (item.Substring(0, 1) ?? "?").ToUpper();
+    //     }
+
+    //     return initials;
+    // }
+
+
+    void OnHome_Click()
+    {
+        NavigationManager.NavigateTo($"/", true);
+    }
+
+    void OnAssets_Click()
+    {
+        NavigationManager.NavigateTo($"/asset-management/asset-list", true);
+    }
+    void OnUsers_Click()
+    {
+        NavigationManager.NavigateTo($"/access-management/user-list", true);
+    }
+    void OnAssetTypes_Click()
+    {
+        NavigationManager.NavigateTo($"/meta/asset-type-list", true);
+    }
+    void OnSidebarToggle_Click()
+    {
+
+        sidebarExpanded = !sidebarExpanded;
+    }
+
+}

@@ -1,0 +1,109 @@
+﻿@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+@using Microsoft.AspNetCore.Identity
+@using Web.Components.Account;
+@using Identity
+@using System.Security.Claims;
+
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href=""><Image Src="assets/img/placeholder.png" IsThumbnail="true" Alt="placeholder" /></a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable">
+    <nav class="flex-column">
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/collectors/excel">
+                        <span class="bi bi-order-nav-menu" aria-hidden="true"></span> Import
+                    </NavLink>
+                </div>
+
+                                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="asset-list">
+                            <span class="bi bi-roles-nav-menu" aria-hidden="true"></span> Assets
+                        </NavLink>
+                    </div>
+
+                @if (ShowAdminLinks)
+                {
+                                        <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/system-admin/organization-list">
+                            <span class="bi bi-building" aria-hidden="true"></span> Organizations
+                        </NavLink>
+                    </div>
+
+
+
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/meta/source-list">
+                        <span class="bi bi-deals-nav-menu" aria-hidden="true"></span> Sources
+                    </NavLink>
+                </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/meta/asset-type-list">
+                            <span class="bi bi-deals-nav-menu" aria-hidden="true"></span> Asset Types
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/meta/attribute-list">
+                            <span class="bi bi-deals-nav-menu" aria-hidden="true"></span> Attributes
+                        </NavLink>
+                    </div>
+
+                }
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Login">
+                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private string? currentUrl;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected bool ShowAdminLinks { get; set; } = false;
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+        var fullName = $"{HttpContext.User.FindFirst(ClaimTypes.Name)?.Value} {HttpContext.User.FindFirst(ClaimTypes.Surname)?.Value}";
+        ShowAdminLinks = fullName == "Clifford Redfern";
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+

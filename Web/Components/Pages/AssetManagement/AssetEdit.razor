@@ -1,0 +1,162 @@
+﻿@page "/asset-management/asset"
+@using Core;
+@using Microsoft.AspNetCore.Authorization
+
+@inherits PageBase;
+
+@inject IMeta _meta;
+@inject IAsset _asset;
+@inject NotificationService NotificationService
+
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
+    }
+
+</script>
+
+@if (asset == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenCard>
+        <RadzenTemplateForm Data="@asset" Submit="@((Asset args) => { Submit(args); })" InvalidSubmit=@OnInvalidSubmit>
+            <RadzenRow Gap="2rem" class="rz-w-auto">
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenStack Orientation="Orientation.Horizontal">
+                        <RadzenFieldset Text="Image" class="rz-vw-25">
+                            <RadzenStack Gap="1rem">
+                                <RadzenImage Path="@ImageUrl" AlternateText="@asset.Name" />
+                                <RadzenUpload Multiple="false" Change=@OnImageUpload Style="width: 100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})" />
+
+                            </RadzenStack>
+                        </RadzenFieldset>
+                        <RadzenFieldset Text="Basic Info" class="rz-vw-50">
+                            <RadzenStack Gap="1rem">
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="4">
+                                        <RadzenLabel Text="Asset Type" Component="AssetTypeId" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="8">
+                                        <RadzenDropDown @bind-Value="asset.AssetTypeId" AllowClear="true" Placeholder="Select something" Data="@assetTypes" Style="width: 100%;" TextProperty="Name" ValueProperty="Id" Name="AssetTypeId"></RadzenDropDown>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="4">
+                                        <RadzenLabel Text="Register #" Component="RegisterNumber" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="8">
+                                        <RadzenTextBox Style="width: 100%;" @bind-value="asset.RegisterNumber" Name="RegisterNumber" />
+                                        <RadzenRequiredValidator Component="RegisterNumber" Text="Register # is required" Style="position: absolute" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="4">
+                                        <RadzenLabel Text="Purchase Date" Component="PurchaseDate" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="8">
+                                        <RadzenDatePicker Style="width: 100%;" Name="PurchaseDate" @bind-Value="asset.PurchaseDate" DateFormat="MM/dd/yyyy" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="4">
+                                        <RadzenLabel Text="Name" Component="Name" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="8">
+                                        <RadzenTextBox Style="width: 100%;" Name="Name" @bind-value="asset.Name" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenStack>
+                        </RadzenFieldset>
+                        <RadzenFieldset Text="Location Info" class="rz-w-fit-content">
+                            <RadzenStack Gap="1rem">
+
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="3">
+                                        <RadzenLabel Text="Parent Asset" Component="ParentAssetDropDown" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="9">
+                                        <RadzenDropDown AllowClear="true" @bind-Value="asset.SelectedParentAsset" TValue="ParentAsset" AllowFiltering="true" Data=@parentAssets Style="width: 100%;" Name="ParentAssetDropDown" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeMD="3">
+                                        <RadzenLabel Text="Organization" Component="OrganizationDropDown" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeMD="9">
+                                        <RadzenDropDown AllowClear="true" @bind-Value="asset.SelectedOrganization" TValue="Organization" AllowFiltering="true" Data=@organizations Style="width: 100%;" Name="OrganizationDropDown" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn Size="12" SizeSM="4" SizeMD="3">
+                                        <RadzenLabel Text="Purchase Value" Component="PurchaseValue" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeSM="8" SizeMD="3">
+                                        <RadzenNumeric Style="width: 100%;" Name="PurchaseValue" @bind-Value="asset.PurchaseValue" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeSM="4" SizeMD="3" class="rz-text-align-md-end">
+                                        <RadzenLabel Text="Current Value" Component="CurrentValue" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12" SizeSM="8" SizeMD="3">
+                                        <RadzenNumeric Style="width: 100%;" Name="CurrentValue" @bind-Value="asset.CurrentValue" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenStack>
+                        </RadzenFieldset>
+
+                    </RadzenStack>
+                </RadzenColumn>
+
+            </RadzenRow>
+
+
+            <RadzenRow Gap="2rem" class="rz-w-auto">
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenStack>
+                        <RadzenFieldset Text="Meta Info">
+                            <RadzenStack Gap="1rem">
+                                <RadzenTabs SelectedIndex="0">
+                                    <Tabs>
+                                        <RadzenTabsItem Text="Notes">
+                                            <RadzenCard>
+                                                <RadzenTextArea Rows="10" Placeholder="Enter here..." Change=@(args => OnNotes_Change(args)) Style="width: 100%" aria-label="TextArea with placeholder" @bind-Value="@asset.Notes" />
+                                            </RadzenCard>
+                                        </RadzenTabsItem>
+                                        @if (asset.Id != 0)
+                                        {
+                                            <RadzenTabsItem Text="Attribution">
+                                                <Attribution AssetId="@asset.Id" />
+                                            </RadzenTabsItem>
+                                            <RadzenTabsItem Text="Uploads">
+                                                <Document AssetId="@asset.Id" />
+                                            </RadzenTabsItem>
+                                        }
+                                        <RadzenTabsItem Text="Access Control">
+                                            <AccessControl OnUserSelected="AddUserAccessAsync" OnUserDeselected="RemoveUserAccessAsync" AssetId="@asset.Id" SelectedUserIds="@asset.AssignedUsers.Select(x => x.UserId).ToList()" />
+                                        </RadzenTabsItem>
+                                    </Tabs>
+                                </RadzenTabs>
+                            </RadzenStack>
+                        </RadzenFieldset>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-8 rz-mb-4">
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="Save" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Large" Icon="cancel" Text="Cancel" Click="@Cancel" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+
+    </RadzenCard>
+}
+
